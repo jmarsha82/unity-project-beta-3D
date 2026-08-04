@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-${{ runner.os }}-
+
+      - name: Run EditMode tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.4.7f1
+          testMode: EditMode
+          coverageOptions: generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Assembly-CSharp
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload test and coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unity-editmode-results
+          path: |
+            artifacts
+            CodeCoverage
+          if-no-files-found: ignore
+
+  code-scanning-quality:
+    name: Code Scanning / Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Unity test infrastructure
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Get-Content -LiteralPath 'Packages/manifest.json' -Raw | ConvertFrom-Json | Out-Null
+          Get-Content -LiteralPath 'Packages/packages-lock.json' -Raw | ConvertFrom-Json | Out-Null
+
+          $testFiles = Get-ChildItem -LiteralPath 'Assets/_3DStealthGame/Tests' -Recurse -File -Filter '*.cs'
+          if ($testFiles.Count -eq 0) {
+            throw 'No Unity EditMode test files were found.'
+          }
+
+          foreach ($testFile in $testFiles) {
+            $metaPath = "$($testFile.FullName).meta"
+            if (-not (Test-Path -LiteralPath $metaPath)) {
+              throw "Missing Unity meta file for $($testFile.FullName)."
+            }
+          }
+
+  code-scanning-security:
+    name: Code Scanning / Security
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: csharp
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:csharp
