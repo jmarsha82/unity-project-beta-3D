@@ -4,7 +4,7 @@ Unity 6 stealth game prototype with automated EditMode tests and GitHub Actions 
 
 ## Local Tests
 
-Tests live in `Assets/_3DStealthGame/Tests/Editor` and run as Unity EditMode tests.
+Tests live in `Assets/_3DStealthGame/Tests/EditMode`.
 
 Run the EditMode suite locally from the repository root:
 

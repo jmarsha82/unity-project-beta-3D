@@ -6,26 +6,26 @@ namespace StealthGame.Tests
 {
     public class ObserverTests
     {
-        static readonly MethodInfo k_OnTriggerEnter = typeof(Observer).GetMethod(
+        static readonly MethodInfo k_OnTriggerEnter = typeof(global::StealthGame.Observer).GetMethod(
             "OnTriggerEnter",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly MethodInfo k_OnTriggerExit = typeof(Observer).GetMethod(
+        static readonly MethodInfo k_OnTriggerExit = typeof(global::StealthGame.Observer).GetMethod(
             "OnTriggerExit",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_IsPlayerInRange = typeof(Observer).GetField(
+        static readonly FieldInfo k_IsPlayerInRange = typeof(global::StealthGame.Observer).GetField(
             "m_IsPlayerInRange",
             BindingFlags.Instance | BindingFlags.NonPublic);
 
         GameObject m_ObserverObject;
         GameObject m_PlayerObject;
-        Observer m_Observer;
+        global::StealthGame.Observer m_Observer;
         Collider m_PlayerCollider;
 
         [SetUp]
         public void SetUp()
         {
             m_ObserverObject = new GameObject("Observer");
-            m_Observer = m_ObserverObject.AddComponent<Observer>();
+            m_Observer = m_ObserverObject.AddComponent<global::StealthGame.Observer>();
 
             m_PlayerObject = new GameObject("Player");
             m_PlayerCollider = m_PlayerObject.AddComponent<BoxCollider>();

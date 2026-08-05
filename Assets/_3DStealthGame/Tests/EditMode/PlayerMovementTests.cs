@@ -6,13 +6,13 @@ namespace StealthGame.Tests
     public class PlayerMovementTests
     {
         GameObject m_PlayerObject;
-        PlayerMovement m_PlayerMovement;
+        global::StealthGame.PlayerMovement m_PlayerMovement;
 
         [SetUp]
         public void SetUp()
         {
             m_PlayerObject = new GameObject("Player");
-            m_PlayerMovement = m_PlayerObject.AddComponent<PlayerMovement>();
+            m_PlayerMovement = m_PlayerObject.AddComponent<global::StealthGame.PlayerMovement>();
         }
 
         [TearDown]
