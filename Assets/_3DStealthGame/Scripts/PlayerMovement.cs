@@ -32,15 +32,24 @@ public class PlayerMovement : MonoBehaviour
         m_Movement.Set(horizontal, 0f, vertical);
         m_Movement.Normalize();
 
-        Vector3 desiredForward = Vector3.RotateTowards(transform.forward, m_Movement, turnSpeed * Time.deltaTime, 0f);
-        m_Rotation = Quaternion.LookRotation(desiredForward);
+        bool isWalking = m_Movement.sqrMagnitude > 0.001f;
 
-        m_Rigidbody.MoveRotation(m_Rotation);
-        m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * walkSpeed * Time.deltaTime);
+        if (isWalking)
+        {
+            Vector3 desiredForward = Vector3.RotateTowards(
+                transform.forward,
+                m_Movement,
+                turnSpeed * Time.fixedDeltaTime,
+                0f);
+
+            m_Rotation = Quaternion.LookRotation(desiredForward);
+            m_Rigidbody.MoveRotation(m_Rotation);
+            m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * walkSpeed * Time.fixedDeltaTime);
+        }
 
         bool hasHorizontalInput = !Mathf.Approximately(horizontal, 0f);
         bool hasVerticalInput = !Mathf.Approximately(vertical, 0f);
-        bool isWalking = hasHorizontalInput || hasVerticalInput;
+        // bool isWalking = hasHorizontalInput || hasVerticalInput;
         m_Animator.SetBool("IsWalking", isWalking);
     }
 }
