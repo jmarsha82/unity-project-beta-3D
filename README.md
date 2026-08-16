@@ -24,9 +24,11 @@ The `CI` workflow runs on pull requests and pushes to `main`.
 
 This job needs Unity activation secrets configured in the repository:
 
-- `UNITY_LICENSE`
+- `UNITY_LICENSE` for a Unity Personal license file
 - `UNITY_EMAIL`
 - `UNITY_PASSWORD`
+
+For a paid Unity license, set `UNITY_SERIAL` with `UNITY_EMAIL` and `UNITY_PASSWORD` instead of `UNITY_LICENSE`. The workflow includes a preflight check so a missing `UNITY_LICENSE` or `UNITY_SERIAL` fails with a direct setup message before `game-ci/unity-test-runner` starts Unity.
 
 ### Code Scanning: Quality
 

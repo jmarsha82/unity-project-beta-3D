@@ -30,6 +30,17 @@ jobs:
           restore-keys: |
             Library-${{ runner.os }}-
 
+      - name: Validate Unity license secrets
+        shell: bash
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        run: |
+          if [[ -z "$UNITY_LICENSE" && -z "$UNITY_SERIAL" ]]; then
+            echo "::error title=Missing Unity license::Set UNITY_LICENSE for a personal license, or UNITY_SERIAL plus UNITY_EMAIL and UNITY_PASSWORD for a paid license, in repository Actions secrets."
+            exit 1
+          fi
+
       - name: Run EditMode tests
         uses: game-ci/unity-test-runner@v4
         env:
