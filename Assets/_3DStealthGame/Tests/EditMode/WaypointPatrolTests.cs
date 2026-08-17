@@ -6,20 +6,20 @@ namespace StealthGame.Tests
 {
     public class WaypointPatrolTests
     {
-        static readonly MethodInfo k_Start = typeof(global::StealthGame.WaypointPatrol).GetMethod(
+        static readonly MethodInfo k_Start = typeof(global::WaypointPatrol).GetMethod(
             "Start",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly MethodInfo k_FixedUpdate = typeof(global::StealthGame.WaypointPatrol).GetMethod(
+        static readonly MethodInfo k_FixedUpdate = typeof(global::WaypointPatrol).GetMethod(
             "FixedUpdate",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_CurrentWaypointIndex = typeof(global::StealthGame.WaypointPatrol).GetField(
+        static readonly FieldInfo k_CurrentWaypointIndex = typeof(global::WaypointPatrol).GetField(
             "m_CurrentWaypointIndex",
             BindingFlags.Instance | BindingFlags.NonPublic);
 
         GameObject m_PatrolObject;
         GameObject m_FirstWaypointObject;
         GameObject m_SecondWaypointObject;
-        global::StealthGame.WaypointPatrol m_Patrol;
+        global::WaypointPatrol m_Patrol;
         Rigidbody m_Rigidbody;
 
         [SetUp]
@@ -28,7 +28,7 @@ namespace StealthGame.Tests
             m_PatrolObject = new GameObject("Patrol");
             m_Rigidbody = m_PatrolObject.AddComponent<Rigidbody>();
             m_Rigidbody.position = new Vector3(0.05f, 0f, 0f);
-            m_Patrol = m_PatrolObject.AddComponent<global::StealthGame.WaypointPatrol>();
+            m_Patrol = m_PatrolObject.AddComponent<global::WaypointPatrol>();
 
             m_FirstWaypointObject = new GameObject("Waypoint A");
             m_FirstWaypointObject.transform.position = Vector3.zero;
@@ -65,6 +65,25 @@ namespace StealthGame.Tests
         {
             k_CurrentWaypointIndex.SetValue(m_Patrol, 1);
             m_Rigidbody.position = new Vector3(1.95f, 0f, 0f);
+
+            k_FixedUpdate.Invoke(m_Patrol, null);
+
+            Assert.That((int)k_CurrentWaypointIndex.GetValue(m_Patrol), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void FixedUpdate_WithNoWaypoints_DoesNotThrow()
+        {
+            m_Patrol.waypoints = new Transform[0];
+
+            Assert.DoesNotThrow(() => k_FixedUpdate.Invoke(m_Patrol, null));
+        }
+
+        [Test]
+        public void FixedUpdate_WithStaleWaypointIndex_ResetsToFirstWaypoint()
+        {
+            k_CurrentWaypointIndex.SetValue(m_Patrol, 5);
+            m_Rigidbody.position = new Vector3(1f, 0f, 0f);
 
             k_FixedUpdate.Invoke(m_Patrol, null);
 

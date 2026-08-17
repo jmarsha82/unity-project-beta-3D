@@ -1,41 +1,35 @@
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.TestTools;
 
 namespace StealthGame.Tests
 {
     public class GameEndingTests
     {
-        static readonly MethodInfo k_OnTriggerEnter = typeof(global::StealthGame.GameEnding).GetMethod(
+        static readonly MethodInfo k_OnTriggerEnter = typeof(global::GameEnding).GetMethod(
             "OnTriggerEnter",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly MethodInfo k_DemoUpdateTimerLabel = typeof(global::StealthGame.GameEnding).GetMethod(
-            "Demo_UpdateTimerLabel",
+        static readonly MethodInfo k_PlayEndingAudio = typeof(global::GameEnding).GetMethod(
+            "PlayEndingAudio",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_IsPlayerAtExit = typeof(global::StealthGame.GameEnding).GetField(
+        static readonly FieldInfo k_IsPlayerAtExit = typeof(global::GameEnding).GetField(
             "m_IsPlayerAtExit",
             BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_IsPlayerCaught = typeof(global::StealthGame.GameEnding).GetField(
+        static readonly FieldInfo k_IsPlayerCaught = typeof(global::GameEnding).GetField(
             "m_IsPlayerCaught",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_DemoGameTimer = typeof(global::StealthGame.GameEnding).GetField(
-            "m_Demo_GameTimer",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly FieldInfo k_DemoGameTimerLabel = typeof(global::StealthGame.GameEnding).GetField(
-            "m_Demo_GameTimerLabel",
             BindingFlags.Instance | BindingFlags.NonPublic);
 
         GameObject m_GameEndingObject;
         GameObject m_PlayerObject;
-        global::StealthGame.GameEnding m_GameEnding;
+        global::GameEnding m_GameEnding;
         Collider m_PlayerCollider;
 
         [SetUp]
         public void SetUp()
         {
             m_GameEndingObject = new GameObject("GameEnding");
-            m_GameEnding = m_GameEndingObject.AddComponent<global::StealthGame.GameEnding>();
+            m_GameEnding = m_GameEndingObject.AddComponent<global::GameEnding>();
 
             m_PlayerObject = new GameObject("Player");
             m_PlayerCollider = m_PlayerObject.AddComponent<BoxCollider>();
@@ -66,15 +60,11 @@ namespace StealthGame.Tests
         }
 
         [Test]
-        public void DemoUpdateTimerLabel_FormatsTimerToTwoDecimalPlaces()
+        public void PlayEndingAudio_WithNoSourceOrClip_DoesNotThrow()
         {
-            var timerLabel = new Label();
-            k_DemoGameTimerLabel.SetValue(m_GameEnding, timerLabel);
-            k_DemoGameTimer.SetValue(m_GameEnding, 12.345f);
+            LogAssert.Expect(LogType.Warning, "GameEnding is missing an end-level audio source or audio clip.");
 
-            k_DemoUpdateTimerLabel.Invoke(m_GameEnding, null);
-
-            Assert.That(timerLabel.text, Is.EqualTo("12.35"));
+            Assert.DoesNotThrow(() => k_PlayEndingAudio.Invoke(m_GameEnding, new object[] { null, null }));
         }
     }
 }

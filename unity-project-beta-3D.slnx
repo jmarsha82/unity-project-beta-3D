@@ -1,3 +1,5 @@
 ﻿<Solution>
+  <Project Path="StealthGame.Runtime.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="StealthGame.EditModeTests.csproj" />
 </Solution>
