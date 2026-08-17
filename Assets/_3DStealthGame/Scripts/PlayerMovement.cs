@@ -9,11 +9,19 @@ public class PlayerMovement : MonoBehaviour
 
     public float walkSpeed = 1.0f;
     public float turnSpeed = 20f;
+    public float speedMultiplier = 1.0f;
 
     Rigidbody m_Rigidbody;
     Vector3 m_Movement;
     Quaternion m_Rotation = Quaternion.identity;
     Animator m_Animator;
+
+    public float CurrentMoveSpeed => walkSpeed * speedMultiplier;
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = Mathf.Max(0f, multiplier);
+    }
 
     void Start()
     {
@@ -44,12 +52,15 @@ public class PlayerMovement : MonoBehaviour
 
             m_Rotation = Quaternion.LookRotation(desiredForward);
             m_Rigidbody.MoveRotation(m_Rotation);
-            m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * walkSpeed * Time.fixedDeltaTime);
+            m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * CurrentMoveSpeed * Time.fixedDeltaTime);
         }
 
         bool hasHorizontalInput = !Mathf.Approximately(horizontal, 0f);
         bool hasVerticalInput = !Mathf.Approximately(vertical, 0f);
         // bool isWalking = hasHorizontalInput || hasVerticalInput;
-        m_Animator.SetBool("IsWalking", isWalking);
+        if (m_Animator != null)
+        {
+            m_Animator.SetBool("IsWalking", isWalking);
+        }
     }
 }

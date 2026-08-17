@@ -26,6 +26,27 @@ namespace StealthGame.Tests
         {
             Assert.That(m_PlayerMovement.walkSpeed, Is.EqualTo(1.0f));
             Assert.That(m_PlayerMovement.turnSpeed, Is.EqualTo(20f));
+            Assert.That(m_PlayerMovement.speedMultiplier, Is.EqualTo(1.0f));
+            Assert.That(m_PlayerMovement.CurrentMoveSpeed, Is.EqualTo(1.0f));
+        }
+
+        [Test]
+        public void SetSpeedMultiplier_UpdatesCurrentMoveSpeed()
+        {
+            m_PlayerMovement.walkSpeed = 3f;
+
+            m_PlayerMovement.SetSpeedMultiplier(1.7f);
+
+            Assert.That(m_PlayerMovement.CurrentMoveSpeed, Is.EqualTo(5.1f).Within(0.001f));
+        }
+
+        [Test]
+        public void SetSpeedMultiplier_ClampsNegativeValues()
+        {
+            m_PlayerMovement.SetSpeedMultiplier(-2f);
+
+            Assert.That(m_PlayerMovement.speedMultiplier, Is.EqualTo(0f));
+            Assert.That(m_PlayerMovement.CurrentMoveSpeed, Is.EqualTo(0f));
         }
     }
 }
